@@ -11,9 +11,13 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
    
-   @IBOutlet var sceneView: ARSCNView!
+   //Properties
    var diceArray: [SCNNode] = [ ]
 
+   //Outlets
+   @IBOutlet var sceneView: ARSCNView!
+   
+   // Actions
    @IBAction func reRollPressed(_ sender: UIButton) {
       rollAll()
    }
@@ -29,14 +33,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       rollAll()
    }
    
+   // View Methods
    override func viewDidLoad() {
       super.viewDidLoad()
       
-//      self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
-      
       // Set the view's delegate
       sceneView.delegate = self
-      
       sceneView.autoenablesDefaultLighting = true
       
    }
@@ -46,7 +48,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       
       // Create a session configuration
       let configuration = ARWorldTrackingConfiguration()
-      
       configuration.planeDetection = .horizontal
       
       // Run the view's session
@@ -60,6 +61,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       sceneView.session.pause()
    }
    
+   
+   // MARK: - Touch Response Methods
    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
       if let touch = touches.first {
          let touchLocation = touch.location(in: sceneView)
@@ -100,21 +103,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             sceneView.scene.rootNode.addChildNode(safeNode)
             roll(dice: safeNode)
          
-            
-//            diceNode?.runAction(SCNAction.move(by: SCNVector3(0, -0.2, 0), duration: 0.5))
-
          }
-         
-         
       }
    }
+   
+   // MARK: - Plane Detection Methods
    // responds to new planes being detected, allowing you to render objects
    func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
       if anchor is ARPlaneAnchor {
          
          let planeAnchor = anchor as! ARPlaneAnchor
-         
-//         let plane = SCNPlane(width: CGFloat(planeAnchor.planeExtent.width), height: CGFloat(planeAnchor.planeExtent.height))
          
          let planeNode = SCNNode()
          
@@ -122,18 +120,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
          
          planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
          
-//         let gridMaterial = SCNMaterial()
-//
-//         gridMaterial.diffuse.contents = UIImage(named: "art.scnassets/texture")
-//
-//         plane.materials = [gridMaterial]
-         
-//         planeNode.geometry = plane
-         
          node.addChildNode(planeNode)
       }
    }
    
+   // MARK: - Dice Roll Methods
    func rollAll() {
       if !diceArray.isEmpty {
          for dice in diceArray {
@@ -147,13 +138,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
       
       let randomZ = Float(arc4random_uniform(4) + 1) * Float.pi/2
       
-      
+      // Moves dice up
       dice.runAction(SCNAction.move(by: SCNVector3(0, 0.1, 0), duration: 0.2))
+      
+      //Rotates dice
       dice.runAction(SCNAction.rotateBy(x: CGFloat(randomX * 5), y: 0, z: CGFloat(randomZ * 5), duration: 0.5))
+      
+      // Moves dice back down
       Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { timer in
          dice.runAction(SCNAction.move(by: SCNVector3(0, -0.1, 0), duration: 0.2))
       }
    }
-   
-   
 }
